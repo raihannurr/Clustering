@@ -1,4 +1,4 @@
-package com.company;
+package main;
 import weka.clusterers.AbstractClusterer;
 import weka.clusterers.Clusterer;
 import weka.core.DistanceFunction;
