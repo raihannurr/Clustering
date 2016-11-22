@@ -6,7 +6,9 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class AgnesCluster implements Clusterer {
-
+	
+	private int numCluster;
+	
 	@Override
 	public void buildClusterer(Instances arg0) throws Exception {
 		// TODO Auto-generated method stub
@@ -34,7 +36,7 @@ public class AgnesCluster implements Clusterer {
 	@Override
 	public int numberOfClusters() throws Exception {
 		// TODO Auto-generated method stub
-		return 0;
+		return numCluster;
 	}
 
 }
