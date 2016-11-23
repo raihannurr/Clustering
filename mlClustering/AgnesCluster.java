@@ -3,6 +3,7 @@ package mlClustering;
 import java.util.ArrayList;
 
 import utils.ClusterDist;
+import utils.KeyPair;
 import weka.clusterers.Clusterer;
 import weka.core.Capabilities;
 import weka.core.Instance;
@@ -18,16 +19,16 @@ public class AgnesCluster implements Clusterer {
 	public AgnesCluster() {
 		numCluster = 0;
 		setIdManager(0);
-		strategy = ClusterDist.MIN_DISTANCE;
+		strategy = ClusterDist.SINGLE_LINK;
 	}
 	
 	public AgnesCluster(int strategy) {
 		numCluster = 0;
 		setIdManager(0);
-		if (strategy == ClusterDist.MAX_DISTANCE) {
+		if (strategy == ClusterDist.COMPLETE_LINK) {
 			this.strategy = strategy;
 		} else {
-			this.strategy = ClusterDist.MIN_DISTANCE;
+			this.strategy = ClusterDist.SINGLE_LINK;
 		}
 	}
 	
@@ -40,7 +41,11 @@ public class AgnesCluster implements Clusterer {
 			treeTab.add(cluster);
 		}
 		
-		
+		while(treeTab.size() > 1){
+			ArrayList<KeyPair> kp = nearestPairs(treeTab);
+			
+		}
+		clusterTree = treeTab.get(0);
 		numCluster = clusterTree.numNodes();
 	}
 
@@ -68,10 +73,39 @@ public class AgnesCluster implements Clusterer {
 		return numCluster;
 	}
 	
+	public ArrayList<KeyPair> nearestPairs(ArrayList<ClusterTree<Instance>> treeTab) {
+		//add all members to array for efficiency purpose
+		ArrayList<ArrayList<Instance>> elements = new ArrayList<ArrayList<Instance>>();
+		for(ClusterTree<Instance> tree : treeTab) {
+			elements.add(tree.getAllMembers());
+		}	
+	
+		//get the nearest pairs
+		ArrayList<KeyPair> kpairs = new ArrayList<KeyPair>();
+		double min = Double.MAX_VALUE;
+		double dist = min;
+		
+		for(int i = 0 ; i < elements.size(); i++) {
+			for(int j = i+1; j < elements.size(); i++) {
+				dist = distance(elements.get(i), elements.get(j));
+				if(dist == min) {
+					kpairs.add(new KeyPair(i,j));
+				} else if(dist < min) {
+					min = dist;
+					//clear
+					kpairs.clear();
+					kpairs.add(new KeyPair(i,j));
+				}
+			}
+		}
+		
+		return kpairs;
+	}
 	
 	public ClusterTree<Instance> newClusterTree() {
 		return new ClusterTree<Instance>(requestId());
 	}
+	
 	public int requestId() {
 		int id = idManager;
 		idManager++;
@@ -91,7 +125,7 @@ public class AgnesCluster implements Clusterer {
 	}
 
 	public double distance(ArrayList<Instance> e1, ArrayList<Instance> e2) {
-		if(strategy == ClusterDist.MIN_DISTANCE) {
+		if(strategy == ClusterDist.SINGLE_LINK) {
 			return ClusterDist.minDistance(e1, e2);
 		} else {
 			return ClusterDist.maxDistance(e1, e2);
