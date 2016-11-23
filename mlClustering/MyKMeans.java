@@ -34,6 +34,34 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		initSeed();
 	}
 
+    public int numberOfClusters() throws java.lang.Exception{
+        return numClusters;
+    }
+
+    public KMeansCluster[] getAllClusters(){
+	    return clusters;
+    }
+
+    public Instances getCentroids() {
+        return centroids;
+    }
+
+    public void runClustering(){
+        initSeed();
+        initClusters();
+        boolean isChanged = true;
+        while(isChanged) {
+            KMeansCluster[] prevClusters = new KMeansCluster[numClusters];
+            for(int i = 0; i<numClusters; i++) {
+                KMeansCluster prevCluster = new KMeansCluster(centroids.instance(i));
+                prevClusters[i] = prevCluster;
+            }
+            reCluster();
+            updateCentroid();
+            isChanged = this.isChanged(prevClusters);
+        }
+    }
+
 	private void initSeed(){
 		listSeed = new int[numClusters];
 		for (int i=0;i<numClusters;i++) {
@@ -51,10 +79,6 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 			centroids.add(dataset.instance(idx));
 		}
 	}
-	
-	public int numberOfClusters() throws java.lang.Exception{
-	    return numClusters;
-	}
 
 	private void initClusters(){
 		for (int i = 0; i<numClusters; i++){
@@ -62,7 +86,7 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		}
 	}
 
-	public void reCluster() {
+	private void reCluster() {
 		EuclideanDistance euclideanDistance = new EuclideanDistance();
 		try {
 			for (Instance instance: dataset) {
@@ -86,28 +110,13 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		return isChanged;
 	}
 
-	public void runClustering(){
-		initSeed();
-		initClusters();
-		boolean isChanged = true;
-		while(isChanged) {
-			KMeansCluster[] prevClusters = new KMeansCluster[numClusters];
-			for(int i = 0; i<numClusters; i++) {
-				KMeansCluster prevCluster = new KMeansCluster(centroids.instance(i));
-				prevClusters[i] = prevCluster;
-			}
-			reCluster();
-			updateCentroid();
-			isChanged = this.isChanged(prevClusters);
-		}
-	}
+    private void updateCentroid(){
+        for (int i=0; i<numClusters; i++) {
+            clusters[i].moveCentroid();
+            centroids.remove(i);
+            centroids.add(i,clusters[i].getCentroid());
+        }
+    }
 
-	private void updateCentroid(){
-		for (int i=0; i<numClusters; i++) {
-			clusters[i].moveCentroid();
-			centroids.remove(i);
-			centroids.add(i,clusters[i].getCentroid());
-		}
-	}
 
 }
