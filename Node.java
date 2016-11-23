@@ -1,4 +1,4 @@
-package main;
+package mlClustering;
 
 import java.util.ArrayList;
 

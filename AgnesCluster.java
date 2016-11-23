@@ -1,4 +1,4 @@
-package main;
+package mlClustering;
 
 import weka.clusterers.Clusterer;
 import weka.core.Capabilities;

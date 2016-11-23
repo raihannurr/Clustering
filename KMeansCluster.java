@@ -1,4 +1,4 @@
-package com.company;
+package mlClustering;
 
 import weka.core.*;
 
