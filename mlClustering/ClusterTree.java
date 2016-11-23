@@ -8,20 +8,22 @@ public class ClusterTree <T> {
 	private ArrayList<Integer> children;
 	private ArrayList<T> elements;
 	private boolean isLeaf;
-	private ArrayList<ClusterTree<?>> childrenNode;
+	private ArrayList<ClusterTree<T>> childrenNode;
 	
 	public ClusterTree(int id) {
 		this.id = id;
 		children = new ArrayList<Integer>();
 		isLeaf = false;
-		childrenNode = new ArrayList<ClusterTree<?>>();
+		childrenNode = new ArrayList<ClusterTree<T>>();
+		elements = new ArrayList<T>();
 	}
 	
 	public ClusterTree(int id, ArrayList<Integer> children) {
 		this.id = id;
 		this.children = children;
 		isLeaf = false;
-		childrenNode = new ArrayList<ClusterTree<?>>();
+		childrenNode = new ArrayList<ClusterTree<T>>();
+		elements = new ArrayList<T>();
 	}
 	
 	public ClusterTree(int id, ArrayList<Integer> children, ArrayList<T> elements) {
@@ -29,7 +31,7 @@ public class ClusterTree <T> {
 		this.children = children;
 		this.elements = elements;
 		isLeaf = false;
-		childrenNode = new ArrayList<ClusterTree<?>>();
+		childrenNode = new ArrayList<ClusterTree<T>>();
 	}
 	
 	public int getId() {
@@ -88,20 +90,54 @@ public class ClusterTree <T> {
 	public void setLeaf(boolean isLeaf) {
 		this.isLeaf = isLeaf;
 	}
+	
+	public boolean hasChildren() {
+		return childrenNode.size() > 0;
+	}
 
-	public ArrayList<ClusterTree<?>> getChildrenNode() {
+	public ArrayList<ClusterTree<T>> getChildrenNode() {
 		return childrenNode;
 	}
 
-	public void setChildrenNode(ArrayList<ClusterTree<?>> childrenNode) {
+	public void setChildrenNode(ArrayList<ClusterTree<T>> childrenNode) {
 		this.childrenNode = childrenNode;
+		ArrayList<Integer> ch = new ArrayList<Integer>();
+		for(ClusterTree<T> cluster : childrenNode) {
+			ch.add(cluster.getId());
+		}
+		this.children = ch;
 	}
 	
-	public void addChildrenNode(ClusterTree<?> node) {
+	public void addChildrenNode(ClusterTree<T> node) {
 		childrenNode.add(node);
+		addChildren(node.getId());
 	}
 	
-	public ClusterTree<?> getChildrenNodeAt(int idx) {
+	public ClusterTree<T> getChildrenNodeAt(int idx) {
 		return childrenNode.get(idx);
+	}
+	
+	public boolean hasElement() {
+		return elements.size() > 0;
+	}
+	
+	public ArrayList<T> getAllMembers() {
+		ArrayList<T> members = new ArrayList<T>();
+		if (hasElement()) {
+			members.addAll(elements);
+		}
+		
+		for(ClusterTree<T> cluster : childrenNode) {
+			members.addAll(cluster.getAllMembers());
+		}
+		return members;
+	}
+	
+	public int numNodes() {
+		int num = 1;
+		for(ClusterTree<T> cluster : childrenNode) {
+			num += cluster.numNodes();
+		}
+		return num;
 	}
 }
