@@ -1,6 +1,7 @@
 package mlClustering;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import utils.ClusterDist;
 import utils.KeyPair;
@@ -41,9 +42,32 @@ public class AgnesCluster implements Clusterer {
 			treeTab.add(cluster);
 		}
 		
+		ArrayList<Integer> removeIdx = new ArrayList<Integer>();
+		ArrayList<ClusterTree<Instance>> newTree = new ArrayList<ClusterTree<Instance>>();
 		while(treeTab.size() > 1){
-			ArrayList<KeyPair> kp = nearestPairs(treeTab);
+			//add nearest pairs to newTree
+			ArrayList<KeyPair> pairs = nearestPairs(treeTab);
+			for(KeyPair kp : pairs) {
+				ClusterTree<Instance> cluster = newClusterTree();
+				cluster.addChildrenNode(treeTab.get(kp.getValue1()));
+				cluster.addChildrenNode(treeTab.get(kp.getValue2()));
+				newTree.add(cluster);
+			}
 			
+			//remove from treeTab
+			for(KeyPair kp : pairs) {
+				removeIdx.addAll(kp.getValue());
+			}
+			Collections.sort(removeIdx);
+			Collections.reverse(removeIdx);
+			for(int idx : removeIdx) {
+				treeTab.remove(idx);
+			}
+			removeIdx.clear();
+			
+			//add new tree to tree tab
+			treeTab.addAll(newTree);
+			newTree.clear();
 		}
 		clusterTree = treeTab.get(0);
 		numCluster = clusterTree.numNodes();
@@ -86,9 +110,9 @@ public class AgnesCluster implements Clusterer {
 		double dist = min;
 		
 		for(int i = 0 ; i < elements.size(); i++) {
-			for(int j = i+1; j < elements.size(); i++) {
+			for(int j = i+1; j < elements.size(); j++) {
 				dist = distance(elements.get(i), elements.get(j));
-				if(dist == min) {
+				if(dist == min && !KeyPair.containVal2(j, kpairs)) {
 					kpairs.add(new KeyPair(i,j));
 				} else if(dist < min) {
 					min = dist;
