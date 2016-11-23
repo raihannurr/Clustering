@@ -7,53 +7,101 @@ import java.util.*;
 /**
  * Created by Aidin Ahmad on 22/11/2016.
  */
+
+/**
+ * Kelas cluster untuk K-Means
+ */
 public class KMeansCluster implements WeightedInstancesHandler{
     private Instance centroid;
     private Instances members;
 
+    /**
+     * Conctructor
+     */
     public KMeansCluster(){    }
 
-    public KMeansCluster(Instances members, DenseInstance centroid) {
+    /**
+     * Contructor
+     * @param members
+     * @param centroid
+     */
+    public KMeansCluster(Instances members, Instance centroid) {
         this.members = members;
-        this.centroid = new DenseInstance(centroid);
+        this.centroid = centroid;
     }
 
+    /**
+     * Constructor
+     * @param centroid
+     */
     public KMeansCluster(Instance centroid) {
         this.centroid = centroid;
     }
 
+    /**
+     * Contructor
+     * @param centroid
+     * @param name
+     * @param attributes
+     * @param capacity
+     */
     public KMeansCluster(Instance centroid, String name, ArrayList<Attribute> attributes, int capacity) {
         this.centroid = centroid;
         members = new Instances(name,attributes,capacity);
     }
 
+    /**
+     * menjadikan Instances menjadi sebagai member kluster
+     * @param members
+     */
     public void setMembers(Instances members){
         this.members= members;
     }
 
-    public void setCentroid(DenseInstance centroid){
+    /**
+     * menjadikan instance sebagai centroid
+     * @param centroid
+     */
+    public void setCentroid(Instance centroid){
         this.centroid = centroid;
     }
 
+    /**
+     * menambahkan member ke kluster
+     * @param instance
+     */
     public void addMembers(Instance instance) {
         this.members.add(instance);
     }
 
+    /**
+     * mendapatkan member dari kluster
+     * @return Instances
+     */
     public Instances getMembers(){
         return members;
     }
 
+    /**
+     * mendapatkan cetroid dari cluster
+     * @return Instance
+     */
     public Instance getCentroid() {
         return centroid;
     }
 
+    /**
+     * mengganti centroid dengan centroid baru.
+     * centorid baru dipilih dengan mencari rata-rata jarak yang dari centroid ke semua anggota
+     * instance yang diberi bobot ditangani
+     * missing attribute value juga ditangani
+     */
     public void moveCentroid(){
         double[] vals = new double[members.numAttributes()];
         Hashtable<Integer,double[]> nominalDists = new Hashtable<>();
         Hashtable<Integer, Double> weightMissing = new Hashtable<>();
         Hashtable<Integer,Double> weightNonMissing = new Hashtable<>();
 
-        // Quickly calculate some relevant statistics
         for (int j = 0; j < members.numAttributes(); j++) {
             if (members.attribute(j).isNominal()) {
                 nominalDists.put(j,new double[members.attribute(j).numValues()]);
@@ -102,6 +150,12 @@ public class KMeansCluster implements WeightedInstancesHandler{
         centroid = new DenseInstance(1.0, vals);
     }
 
+    /**
+     * mengecek apakah 2 cluster sama atau tidak
+     * diasumsikan 2 kluster yang memiliki centroid yang sama, juga memiliki anggota yang sama
+     * @param cluster
+     * @return boolean
+     */
     public boolean isEqual(KMeansCluster cluster) {
         boolean equal = true;
         int i = 0;
@@ -112,12 +166,6 @@ public class KMeansCluster implements WeightedInstancesHandler{
             i++;
         }
         return equal;
-    }
-
-    public void copyCentroid(KMeansCluster cluster){
-        for(int i =0; i<centroid.numAttributes();i++){
-            this.centroid.setValue(i,cluster.centroid.value(i));
-        }
     }
 
 }
