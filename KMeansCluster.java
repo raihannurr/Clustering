@@ -9,45 +9,45 @@ import java.util.ArrayList;
  */
 public class KMeansCluster {
     DenseInstance centroid;
-    Instances members;
+    ArrayList<Integer> membersIdx;
 
     public KMeansCluster(){    }
 
-    public KMeansCluster(Instances instances, DenseInstance centroid) {
-        this.members = new Instances(instances);
+    public KMeansCluster(ArrayList<Integer> membersIdx, DenseInstance centroid) {
+        this.membersIdx = new ArrayList<>(membersIdx);
         this.centroid = new DenseInstance(centroid);
     }
 
-    public void setMembers(Instances members){
-        this.members = members;
+    public void setMembers(ArrayList<Integer> membersIdxs){
+        this.membersIdx = new ArrayList<>(membersIdxs);
     }
 
     public void setCentroid(DenseInstance centroid){
         this.centroid = centroid;
     }
 
-    public void changeCentroid(){
+    public void changeCentroid(Instances instances){
         DenseInstance newCentroid = new DenseInstance(centroid.numAttributes());
-        newCentroid = findCentroid();
+        newCentroid = findCentroid(instances);
         setCentroid(newCentroid);
     }
 
-    public DenseInstance findCentroid() {
+    public DenseInstance findCentroid(Instances instances) {
         DenseInstance newCentroid = new DenseInstance(centroid.numAttributes());
-        for (int i=0; i<centroid.numAttributes();i++) {
-            newCentroid.setValue(i, getNewCentroidAttrValueStr(i));
+        for (int attrIdx=0; attrIdx<centroid.numAttributes();attrIdx++) {
+            newCentroid.setValue(attrIdx, getNewCentroidAttrValue(instances, attrIdx));
         }
         return newCentroid;
     }
 
-    public double getNewCentroidAttrValueStr(int idx){
+    public double getNewCentroidAttrValue(Instances instances, int attrIdx){
         double newValue = 0;
         double sum = 0;
-        for (int i=0; i<members.numInstances(); i++) {
+        for (int idx : membersIdx) {
             EuclideanDistance euclideanDistance = new EuclideanDistance();
-            sum += getDistance(centroid,members.instance(i),euclideanDistance);
+            sum += getDistance(centroid,instances.instance(idx),euclideanDistance);
         }
-        newValue = sum/members.numInstances();
+        newValue = sum/membersIdx.size();
         return newValue;
     }
 
