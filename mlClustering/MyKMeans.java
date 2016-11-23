@@ -15,15 +15,27 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 	private Instances dataset;
 	private Instances centroids;
 	private ArrayList<Attribute> attributes;
-	int[] listSeed;
-	
+	private int[] listSeed; // hanya digunakan saat pencarian jarak terdekat
+
+    /**
+     * Constructor
+     */
 	public MyKMeans() { /*code*/}
 
+    /**
+     * Constructor
+     * @param numClusters
+     */
 	public MyKMeans(int numClusters) {
 		this.numClusters = numClusters;
 		clusters = new KMeansCluster[numClusters];
 	}
 
+    /**
+     * memasukkan dataset yang akan dicluster
+     * @param instances
+     * @throws Exception
+     */
 	public void buildClusterer(Instances instances) throws Exception {
 		this.dataset = instances;
 
@@ -34,18 +46,35 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		initSeed();
 	}
 
-    public int numberOfClusters() throws java.lang.Exception{
+    /**
+     * mendapatkan jumlah cluster yang diinginkan
+     * @return integer
+     */
+    public int numberOfClusters(){
         return numClusters;
     }
 
+    /**
+     * mendapatkan semua kluster
+     * @return array of KMeansCluster
+     */
     public KMeansCluster[] getAllClusters(){
 	    return clusters;
     }
 
+    /**
+     * mendapatkan centroid dari semua kluster
+     * @return centroid
+     */
     public Instances getCentroids() {
         return centroids;
     }
 
+    /**
+     * melakukan clustering
+     * I.S. data tidak memiliki centroid dan tidak memiliki kluster berdasarkan kemiripan
+     * F.S dataset memiliki centroid dan sudah berbentuk cluster
+     */
     public void runClustering(){
         initSeed();
         initClusters();
@@ -58,10 +87,14 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
             }
             reCluster();
             updateCentroid();
-            isChanged = this.isChanged(prevClusters);
+            isChanged = this.isDifferent(prevClusters);
         }
     }
 
+    /**
+     * menginisiasi seed yang akan dijadikan centroid pertama dari setiap kluster
+     * seed dipilih secara acak
+     */
 	private void initSeed(){
 		listSeed = new int[numClusters];
 		for (int i=0;i<numClusters;i++) {
@@ -80,13 +113,23 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		}
 	}
 
+    /**
+     * menginisiasi setiap kluster dengan centroid yang ada,
+     * anggota dari kluster belum ditentukan
+     */
 	private void initClusters(){
 		for (int i = 0; i<numClusters; i++){
 			clusters[i] = new KMeansCluster(centroids.instance(i),"cluster"+i,attributes,dataset.size());
 		}
 	}
 
+    /**
+     * menyesuaikan anggota setiap cluster berdasarkan centroid yang ada
+     */
 	private void reCluster() {
+	    for(int i = 0; i<numClusters; i++) {
+            clusters[i].clearMembers();
+        }
 		EuclideanDistance euclideanDistance = new EuclideanDistance();
 		try {
 			for (Instance instance: dataset) {
@@ -98,11 +141,17 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		}
 	}
 
-	private boolean isChanged(KMeansCluster[] prevClusters){
+    /**
+     * mengecek apakah dua himpunan cluster berbeda atau tidak
+     * prekondisi: jumlah kluster dari dua himpunan sama
+     * @param clusters
+     * @return boolean
+     */
+	private boolean isDifferent(KMeansCluster[] clusters){
 		boolean isChanged = false;
 		int i = 0;
 		while(!isChanged && i<numClusters) {
-			if(!clusters[i].equals(prevClusters[i])){
+			if(!this.clusters[i].equals(clusters[i])){
 				isChanged = true;
 			}
 			i++;
@@ -110,6 +159,9 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		return isChanged;
 	}
 
+    /**
+     * menyesuaikan centroid berdasarkan centroid dari setiap kluster
+     */
     private void updateCentroid(){
         for (int i=0; i<numClusters; i++) {
             clusters[i].moveCentroid();

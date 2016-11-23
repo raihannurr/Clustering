@@ -168,4 +168,11 @@ public class KMeansCluster implements WeightedInstancesHandler{
         return equal;
     }
 
+    /**
+     * mengosongkan member kluster
+     */
+    public void clearMembers(){
+        members.clear();
+    }
+
 }
