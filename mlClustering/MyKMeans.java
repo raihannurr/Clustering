@@ -96,7 +96,7 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		centroids = new Instances("centroids",attributes,numClusters);
 		ArrayList<Integer> list = new ArrayList<>();
 		for (int i=0; i<dataset.size(); i++) {
-			list.add(new Integer(i));
+			list.add(i);
 		}
 		Collections.shuffle(list);
 		for (int i=0; i<numClusters; i++) {
