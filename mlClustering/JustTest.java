@@ -13,7 +13,7 @@ public class JustTest {
         DataSource source = new DataSource("C:/Users/muhtarh/Desktop/iris.arff");
         AgnesCluster agnes = new AgnesCluster();        
         //MyKMeans kmeans = new MyKMeans(3);
-        Instances datas = source.getDataSet();        
+        Instances datas = source.getDataSet();    
         //System.out.println(datas.a);
         //kmeans.buildClusterer(datas);
         agnes.buildClusterer(datas);

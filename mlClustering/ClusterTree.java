@@ -9,10 +9,11 @@ public class ClusterTree <T> {
 	private ArrayList<T> elements;
 	private boolean isLeaf;
 	private ArrayList<ClusterTree<T>> childrenNode;
-	
+	private ArrayList<Integer> descendants;
 	public ClusterTree(int id) {
 		this.id = id;
 		children = new ArrayList<Integer>();
+		setDescendants(new ArrayList<Integer>());
 		isLeaf = false;
 		childrenNode = new ArrayList<ClusterTree<T>>();
 		elements = new ArrayList<T>();
@@ -21,9 +22,11 @@ public class ClusterTree <T> {
 	public ClusterTree(int id, ArrayList<Integer> children) {
 		this.id = id;
 		this.children = children;
+		setDescendants(new ArrayList<Integer>());
 		isLeaf = false;
 		childrenNode = new ArrayList<ClusterTree<T>>();
 		elements = new ArrayList<T>();
+		getDescendants().addAll(children);
 	}
 	
 	public ClusterTree(int id, ArrayList<Integer> children, ArrayList<T> elements) {
@@ -64,6 +67,7 @@ public class ClusterTree <T> {
 	
 	public void addChildren(int id) {
 		children.add(id);
+		getDescendants().add(id);
 	}
 	
 	public void addElement(T e) {
@@ -102,8 +106,13 @@ public class ClusterTree <T> {
 	public void setChildrenNode(ArrayList<ClusterTree<T>> childrenNode) {
 		this.childrenNode = childrenNode;
 		ArrayList<Integer> ch = new ArrayList<Integer>();
+		children.clear();
+		descendants.clear();
 		for(ClusterTree<T> cluster : childrenNode) {
 			ch.add(cluster.getId());
+			addChildren(cluster.getId());
+			getDescendants().add(cluster.getId());
+			getDescendants().addAll(cluster.getDescendants());
 		}
 		this.children = ch;
 	}
@@ -111,6 +120,9 @@ public class ClusterTree <T> {
 	public void addChildrenNode(ClusterTree<T> node) {
 		childrenNode.add(node);
 		addChildren(node.getId());
+		descendants.add(node.getId());
+		descendants.addAll(node.getDescendants());
+		
 	}
 	
 	public ClusterTree<T> getChildrenNodeAt(int idx) {
@@ -139,5 +151,13 @@ public class ClusterTree <T> {
 			num += cluster.numNodes();
 		}
 		return num;
+	}
+
+	public ArrayList<Integer> getDescendants() {
+		return descendants;
+	}
+
+	public void setDescendants(ArrayList<Integer> descendants) {
+		this.descendants = descendants;
 	}
 }

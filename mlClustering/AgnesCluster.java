@@ -9,6 +9,7 @@ import utils.ClusterDist;
 import utils.KeyPair;
 import weka.clusterers.Clusterer;
 import weka.core.Capabilities;
+import weka.core.EuclideanDistance;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -18,6 +19,7 @@ public class AgnesCluster implements Clusterer {
 	private ClusterTree<Instance> clusterTree;
 	private int strategy;
 	private int idManager;
+	private EuclideanDistance edist;
 	
 	public AgnesCluster() {
 		numCluster = 0;
@@ -38,6 +40,7 @@ public class AgnesCluster implements Clusterer {
 	@Override
 	public void buildClusterer(Instances arg0) throws Exception {
 		//add all instances to leaf cluster
+		edist = new EuclideanDistance(arg0);
 		ArrayList<ClusterTree<Instance>> treeTab = new ArrayList<ClusterTree<Instance>>();
 		for(int i = 0; i < arg0.size(); i++) {
 			ClusterTree<Instance> cluster = newClusterTree();
@@ -155,9 +158,9 @@ public class AgnesCluster implements Clusterer {
 
 	public double distance(ArrayList<Instance> e1, ArrayList<Instance> e2) {
 		if(strategy == ClusterDist.SINGLE_LINK) {
-			return ClusterDist.minDistance(e1, e2);
+			return ClusterDist.minDistance(e1, e2, edist);
 		} else {
-			return ClusterDist.maxDistance(e1, e2);
+			return ClusterDist.maxDistance(e1, e2, edist);
 		}
 	}
 
