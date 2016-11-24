@@ -1,6 +1,8 @@
 package mlClustering;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClusterTree <T> {
 	
@@ -9,32 +11,47 @@ public class ClusterTree <T> {
 	private ArrayList<T> elements;
 	private boolean isLeaf;
 	private ArrayList<ClusterTree<T>> childrenNode;
-	private ArrayList<Integer> descendants;
+	private Set<Integer> descendants;
+	private int level;
+	
 	public ClusterTree(int id) {
 		this.id = id;
 		children = new ArrayList<Integer>();
-		setDescendants(new ArrayList<Integer>());
+		setDescendants(new HashSet<Integer>());
 		isLeaf = false;
 		childrenNode = new ArrayList<ClusterTree<T>>();
 		elements = new ArrayList<T>();
+		setLevel(0);
 	}
 	
-	public ClusterTree(int id, ArrayList<Integer> children) {
+	public ClusterTree(int id, int level) {
+		this.id = id;
+		children = new ArrayList<Integer>();
+		setDescendants(new HashSet<Integer>());
+		isLeaf = false;
+		childrenNode = new ArrayList<ClusterTree<T>>();
+		elements = new ArrayList<T>();
+		this.setLevel(level);
+	}
+	
+	public ClusterTree(int id, ArrayList<Integer> children, int level) {
 		this.id = id;
 		this.children = children;
-		setDescendants(new ArrayList<Integer>());
+		setDescendants(new HashSet<Integer>());
 		isLeaf = false;
 		childrenNode = new ArrayList<ClusterTree<T>>();
 		elements = new ArrayList<T>();
 		getDescendants().addAll(children);
+		this.setLevel(level);
 	}
 	
-	public ClusterTree(int id, ArrayList<Integer> children, ArrayList<T> elements) {
+	public ClusterTree(int id, ArrayList<Integer> children, ArrayList<T> elements, int level) {
 		this.id = id;
 		this.children = children;
 		this.elements = elements;
 		isLeaf = false;
 		childrenNode = new ArrayList<ClusterTree<T>>();
+		this.setLevel(level);
 	}
 	
 	public int getId() {
@@ -145,6 +162,40 @@ public class ClusterTree <T> {
 		return members;
 	}
 	
+	@Override
+	public String toString() {
+		return toString(0);
+	}
+	
+	public String toString(int numSpace) {
+		//print space
+		String res = "";
+		for(int i = 0; i< numSpace; i++) {
+			res += "  ";
+		}
+		res += "ID = " + Integer.toString(id) + " Level = " + Integer.toString(level) + " Children : " + ArrToString(children);
+		if(hasElement()) {
+			res += " Element : " + ArrToString(elements);
+		}
+		res += "\n";
+		for(int i = 0; i < childrenNode.size(); i++) {
+			res += childrenNode.get(i).toString(numSpace+1);
+		}
+		return res;
+	}
+	
+	public String ArrToString(ArrayList<?> arr) {
+		String res = "{";
+		if(!arr.isEmpty()) {
+			for(int i = 0; i < arr.size(); i++) {
+				res += arr.get(i).toString() + ", ";
+			}
+			res = res.substring(0, res.length()-2);
+			
+		}
+		res += "}";
+		return res;
+	}
 	public int numNodes() {
 		int num = 1;
 		for(ClusterTree<T> cluster : childrenNode) {
@@ -153,11 +204,19 @@ public class ClusterTree <T> {
 		return num;
 	}
 
-	public ArrayList<Integer> getDescendants() {
+	public Set<Integer> getDescendants() {
 		return descendants;
 	}
 
-	public void setDescendants(ArrayList<Integer> descendants) {
-		this.descendants = descendants;
+	public void setDescendants(HashSet<Integer> hashSet) {
+		this.descendants = hashSet;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
 	}
 }

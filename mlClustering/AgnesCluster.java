@@ -20,7 +20,7 @@ public class AgnesCluster implements Clusterer {
 	private int strategy;
 	private int idManager;
 	private EuclideanDistance edist;
-	
+	int levelMax = 0;
 	public AgnesCluster() {
 		numCluster = 0;
 		setIdManager(0);
@@ -46,8 +46,11 @@ public class AgnesCluster implements Clusterer {
 			ClusterTree<Instance> cluster = newClusterTree();
 			cluster.addElement(arg0.get(i));
 			treeTab.add(cluster);
+			
 		}
 		
+		//next level
+		levelMax++;
 		ArrayList<Integer> removeIdx = new ArrayList<Integer>();
 		Set<Integer> removeSet = new HashSet<Integer>();
 		ArrayList<ClusterTree<Instance>> newTree = new ArrayList<ClusterTree<Instance>>();
@@ -55,10 +58,11 @@ public class AgnesCluster implements Clusterer {
 			//add nearest pairs to newTree
 			ArrayList<KeyPair> pairs = nearestPairs(treeTab);
 			for(KeyPair kp : pairs) {
-				ClusterTree<Instance> cluster = newClusterTree();
+				ClusterTree<Instance> cluster = newClusterTree(levelMax);
 				cluster.addChildrenNode(treeTab.get(kp.getValue1()));
 				cluster.addChildrenNode(treeTab.get(kp.getValue2()));
 				newTree.add(cluster);
+				System.out.println("add " + kp);
 			}
 			
 			//remove from treeTab
@@ -70,12 +74,15 @@ public class AgnesCluster implements Clusterer {
 			Collections.reverse(removeIdx);
 			for(int idx : removeIdx) {
 				treeTab.remove(idx);
+				System.out.println("remove :" + idx);
 			}
 			removeIdx.clear();
 			removeSet.clear();
 			//add new tree to tree tab
 			treeTab.addAll(newTree);
 			newTree.clear();
+			//next level
+			levelMax++;
 		}
 		clusterTree = treeTab.get(0);
 		numCluster = clusterTree.numNodes();
@@ -105,6 +112,11 @@ public class AgnesCluster implements Clusterer {
 		return numCluster;
 	}
 	
+	@Override
+	public String toString() {
+		return clusterTree.toString();
+	}
+	
 	public ArrayList<KeyPair> nearestPairs(ArrayList<ClusterTree<Instance>> treeTab) {
 		//add all members to array for efficiency purpose
 		ArrayList<ArrayList<Instance>> elements = new ArrayList<ArrayList<Instance>>();
@@ -120,7 +132,7 @@ public class AgnesCluster implements Clusterer {
 		for(int i = 0 ; i < elements.size()-1; i++) {
 			for(int j = i+1; j < elements.size(); j++) {
 				dist = distance(elements.get(i), elements.get(j));
-				if(dist == min && !KeyPair.containVal1(i, kpairs) && !KeyPair.containVal2(i, kpairs)) {
+				if(dist == min && !KeyPair.containVal1(i, kpairs) && !KeyPair.containVal2(i, kpairs) && !KeyPair.containVal1(j, kpairs) && !KeyPair.containVal2(j, kpairs)) {
 					kpairs.add(new KeyPair(i,j));
 				} else if(dist < min) {
 					min = dist;
@@ -136,6 +148,11 @@ public class AgnesCluster implements Clusterer {
 	
 	public ClusterTree<Instance> newClusterTree() {
 		return new ClusterTree<Instance>(requestId());
+	}
+	
+	public ClusterTree<Instance> newClusterTree(int level) {
+		return new ClusterTree<Instance>(requestId(), level);
+		
 	}
 	
 	public int requestId() {
