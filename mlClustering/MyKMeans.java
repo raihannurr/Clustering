@@ -47,7 +47,12 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
         initSeed();
         initClusters();
         boolean isChanged = true;
-        while(isChanged) {
+        int iteration =0;
+        while(iteration<5) {
+            iteration++;
+            System.out.println("");
+            System.out.println("iterasi: "+iteration);
+            printCentroid();
             KMeansCluster[] prevClusters = new KMeansCluster[numClusters];
             for(int i = 0; i<numClusters; i++) {
                 KMeansCluster prevCluster = new KMeansCluster(centroids.instance(i));
@@ -58,6 +63,10 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
             isChanged = this.isDifferent(prevClusters);
         }
 	}
+
+	public void printCentroid(){
+	    System.out.println(centroids.toString());
+    }
 
     /**
      * mendapatkan jumlah cluster yang diinginkan
@@ -88,6 +97,7 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
      * seed dipilih secara acak
      */
 	private void initSeed(){
+	    System.out.println("inisiasi seed");
 		listSeed = new int[numClusters];
 		for (int i=0;i<numClusters;i++) {
 			listSeed[i]=i;

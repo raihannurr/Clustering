@@ -126,7 +126,7 @@ public class KMeansCluster implements WeightedInstancesHandler{
 
         for (int j = 0; j < members.numAttributes(); j++) {
             if (members.attribute(j).isNumeric()) {
-                if  (weightNonMissing.get(j) > 0) {
+                if  (weightNonMissing.getOrDefault(j,(double)0) > 0) {
                     vals[j] /= weightNonMissing.get(j);
                 } else {
                     vals[j] = Utils.missingValue();

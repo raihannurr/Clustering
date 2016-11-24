@@ -7,11 +7,10 @@ import weka.core.converters.ConverterUtils;
  * Created by Aidin Ahmad on 24/11/2016.
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         // TODO code application logic here
 
         System.out.println("asdasdasd");
-        try {
             System.out.println("tes");
             ConverterUtils.DataSource source = new ConverterUtils.DataSource("iris.arff");
             AgnesCluster agnes = new AgnesCluster();
@@ -22,8 +21,5 @@ public class Main {
             //agnes.buildClusterer(datas);
             //System.out.println(agnes.toString());
             System.out.println("aku");
-        } catch (Exception e) {
-
-        }
     }
 }
