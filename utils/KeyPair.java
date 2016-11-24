@@ -60,4 +60,8 @@ public class KeyPair {
 		}
 		return found;
 	}
+	
+	public String toString() {
+		return "<" + Integer.toString(value1) + "," + Integer.toString(value2) + ">";
+	} 
 }
