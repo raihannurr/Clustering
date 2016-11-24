@@ -116,7 +116,7 @@ public class KMeansCluster implements WeightedInstancesHandler{
                     double newWeight = weightNonMissing.getOrDefault(j,(double)0) + inst.weight();
                     weightNonMissing.put(j,newWeight);
                     if (members.attribute(j).isNumeric()) {
-                        vals[j] += inst.weight() * inst.value(j); // Will be overwritten in Manhattan case
+                        vals[j] += inst.weight() * inst.value(j);
                     } else {
                         nominalDists.get(j)[(int)inst.value(j)] += inst.weight();
                     }
@@ -126,7 +126,7 @@ public class KMeansCluster implements WeightedInstancesHandler{
 
         for (int j = 0; j < members.numAttributes(); j++) {
             if (members.attribute(j).isNumeric()) {
-                if  (weightNonMissing.get(j) > 0) {
+                if  (weightNonMissing.getOrDefault(j,(double)0) > 0) {
                     vals[j] /= weightNonMissing.get(j);
                 } else {
                     vals[j] = Utils.missingValue();
