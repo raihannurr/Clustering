@@ -2,26 +2,22 @@ package mlClustering;
 
 import java.util.ArrayList;
 
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+
 public class JustTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 	// write your code here
-    	ClusterTree<Integer> c1 = new ClusterTree<Integer>(1);
-    	ClusterTree<Integer> c2 = new ClusterTree<Integer>(1);
-    	ClusterTree<Integer> c3 = new ClusterTree<Integer>(1);
-    	ArrayList<Integer> arr = new ArrayList<Integer>();
-    	for(int i = 0; i < 5; i++) {
-    		c2.addElement(i);
-    		c3.addElement(2*i + 1);
-    		arr.add(i);
-    	}
-    	c1.addChildrenNode(c2);
-    	c1.addChildrenNode(c3);
-    	printArr(c1.getAllMembers());
-    	System.out.println(c1.numNodes());
-    	printArr(arr);
-    	arr.clear();
-    	System.out.println(arr.size());
+    	  // TODO code application logic here
+        DataSource source = new DataSource("C:/Users/muhtarh/Desktop/iris.arff");
+        AgnesCluster agnes = new AgnesCluster();        
+        //MyKMeans kmeans = new MyKMeans(3);
+        Instances datas = source.getDataSet();        
+        //System.out.println(datas.a);
+        //kmeans.buildClusterer(datas);
+        agnes.buildClusterer(datas);
+        //System.out.println(agnes.toString());
     	
     }
     
