@@ -1,8 +1,10 @@
 package mlClustering;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import utils.ClusterDist;
+import utils.KeyPair;
 import weka.clusterers.Clusterer;
 import weka.core.Capabilities;
 import weka.core.Instance;
@@ -18,16 +20,16 @@ public class AgnesCluster implements Clusterer {
 	public AgnesCluster() {
 		numCluster = 0;
 		setIdManager(0);
-		strategy = ClusterDist.MIN_DISTANCE;
+		strategy = ClusterDist.SINGLE_LINK;
 	}
 	
 	public AgnesCluster(int strategy) {
 		numCluster = 0;
 		setIdManager(0);
-		if (strategy == ClusterDist.MAX_DISTANCE) {
+		if (strategy == ClusterDist.COMPLETE_LINK) {
 			this.strategy = strategy;
 		} else {
-			this.strategy = ClusterDist.MIN_DISTANCE;
+			this.strategy = ClusterDist.SINGLE_LINK;
 		}
 	}
 	
@@ -40,7 +42,34 @@ public class AgnesCluster implements Clusterer {
 			treeTab.add(cluster);
 		}
 		
-		
+		ArrayList<Integer> removeIdx = new ArrayList<Integer>();
+		ArrayList<ClusterTree<Instance>> newTree = new ArrayList<ClusterTree<Instance>>();
+		while(treeTab.size() > 1){
+			//add nearest pairs to newTree
+			ArrayList<KeyPair> pairs = nearestPairs(treeTab);
+			for(KeyPair kp : pairs) {
+				ClusterTree<Instance> cluster = newClusterTree();
+				cluster.addChildrenNode(treeTab.get(kp.getValue1()));
+				cluster.addChildrenNode(treeTab.get(kp.getValue2()));
+				newTree.add(cluster);
+			}
+			
+			//remove from treeTab
+			for(KeyPair kp : pairs) {
+				removeIdx.addAll(kp.getValue());
+			}
+			Collections.sort(removeIdx);
+			Collections.reverse(removeIdx);
+			for(int idx : removeIdx) {
+				treeTab.remove(idx);
+			}
+			removeIdx.clear();
+			
+			//add new tree to tree tab
+			treeTab.addAll(newTree);
+			newTree.clear();
+		}
+		clusterTree = treeTab.get(0);
 		numCluster = clusterTree.numNodes();
 	}
 
@@ -68,10 +97,39 @@ public class AgnesCluster implements Clusterer {
 		return numCluster;
 	}
 	
+	public ArrayList<KeyPair> nearestPairs(ArrayList<ClusterTree<Instance>> treeTab) {
+		//add all members to array for efficiency purpose
+		ArrayList<ArrayList<Instance>> elements = new ArrayList<ArrayList<Instance>>();
+		for(ClusterTree<Instance> tree : treeTab) {
+			elements.add(tree.getAllMembers());
+		}	
+	
+		//get the nearest pairs
+		ArrayList<KeyPair> kpairs = new ArrayList<KeyPair>();
+		double min = Double.MAX_VALUE;
+		double dist = min;
+		
+		for(int i = 0 ; i < elements.size(); i++) {
+			for(int j = i+1; j < elements.size(); j++) {
+				dist = distance(elements.get(i), elements.get(j));
+				if(dist == min && !KeyPair.containVal2(j, kpairs)) {
+					kpairs.add(new KeyPair(i,j));
+				} else if(dist < min) {
+					min = dist;
+					//clear
+					kpairs.clear();
+					kpairs.add(new KeyPair(i,j));
+				}
+			}
+		}
+		
+		return kpairs;
+	}
 	
 	public ClusterTree<Instance> newClusterTree() {
 		return new ClusterTree<Instance>(requestId());
 	}
+	
 	public int requestId() {
 		int id = idManager;
 		idManager++;
@@ -91,7 +149,7 @@ public class AgnesCluster implements Clusterer {
 	}
 
 	public double distance(ArrayList<Instance> e1, ArrayList<Instance> e2) {
-		if(strategy == ClusterDist.MIN_DISTANCE) {
+		if(strategy == ClusterDist.SINGLE_LINK) {
 			return ClusterDist.minDistance(e1, e2);
 		} else {
 			return ClusterDist.maxDistance(e1, e2);
