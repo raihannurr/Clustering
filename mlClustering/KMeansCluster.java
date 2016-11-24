@@ -97,57 +97,9 @@ public class KMeansCluster implements WeightedInstancesHandler{
      * missing attribute value juga ditangani
      */
     public void moveCentroid(){
-        double[] vals = new double[members.numAttributes()];
-        Hashtable<Integer,double[]> nominalDists = new Hashtable<>();
-        Hashtable<Integer, Double> weightMissing = new Hashtable<>();
-        Hashtable<Integer,Double> weightNonMissing = new Hashtable<>();
-
-        for (int j = 0; j < members.numAttributes(); j++) {
-            if (members.attribute(j).isNominal()) {
-                nominalDists.put(j,new double[members.attribute(j).numValues()]);
-            }
+        for (int j = 0; j < centroid.numAttributes(); j++) {
+            centroid.setValue(centroid.attribute(j), members.meanOrMode(j));
         }
-        for (Instance inst : members) {
-            for (int j = 0; j < members.numAttributes(); j++) {
-                if (inst.isMissing(j)) {
-                    double newWeight = weightMissing.getOrDefault(j,(double)0) + inst.weight();
-                    weightMissing.put(j,newWeight);
-                } else {
-                    double newWeight = weightNonMissing.getOrDefault(j,(double)0) + inst.weight();
-                    weightNonMissing.put(j,newWeight);
-                    if (members.attribute(j).isNumeric()) {
-                        vals[j] += inst.weight() * inst.value(j);
-                    } else {
-                        nominalDists.get(j)[(int)inst.value(j)] += inst.weight();
-                    }
-                }
-            }
-        }
-
-        for (int j = 0; j < members.numAttributes(); j++) {
-            if (members.attribute(j).isNumeric()) {
-                if  (weightNonMissing.getOrDefault(j,(double)0) > 0) {
-                    vals[j] /= weightNonMissing.get(j);
-                } else {
-                    vals[j] = Utils.missingValue();
-                }
-            } else {
-                double max = -Double.MAX_VALUE;
-                double maxIndex = -1;
-                for (int i = 0; i < nominalDists.get(j).length; i++) {
-                    if (nominalDists.get(j)[i] > max) {
-                        max = nominalDists.get(j)[i];
-                        maxIndex = i;
-                    }
-                    if (max < weightMissing.get(j)) {
-                        vals[j] = Utils.missingValue();
-                    } else {
-                        vals[j] = maxIndex;
-                    }
-                }
-            }
-        }
-        centroid = new DenseInstance(1.0, vals);
     }
 
     /**
@@ -173,6 +125,14 @@ public class KMeansCluster implements WeightedInstancesHandler{
      */
     public void clearMembers(){
         members.clear();
+    }
+
+    public static Instance copyInstance(Instance instance){
+        DenseInstance denseInstance = new DenseInstance(instance.numAttributes());
+        for (int i = 0; i<instance.numAttributes(); i++) {
+            denseInstance.setValue(instance.attribute(i),instance.value(i));
+        }
+        return denseInstance;
     }
 
 }

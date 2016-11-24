@@ -111,7 +111,8 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		Collections.shuffle(list);
 		for (int i=0; i<numClusters; i++) {
 			int idx =(list.get(i));
-			centroids.add(dataset.instance(idx));
+			Instance centroid = KMeansCluster.copyInstance(dataset.instance(idx));
+			centroids.add(centroid);
 		}
 	}
 
@@ -167,8 +168,8 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
     private void updateCentroid(){
         for (int i=0; i<numClusters; i++) {
             clusters[i].moveCentroid();
-            centroids.remove(i);
-            centroids.add(i,clusters[i].getCentroid());
+            //centroids.remove(i);
+            //centroids.add(i,clusters[i].getCentroid());
         }
     }
 
