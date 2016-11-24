@@ -32,7 +32,9 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 	}
 
     /**
-     * memasukkan dataset yang akan dicluster
+     * melakukan clustering terhadap instance yang dimasukkan
+     * I.S. data tidak memiliki centroid dan tidak memiliki kluster berdasarkan kemiripan
+     * F.S dataset memiliki centroid dan sudah berbentuk cluster
      * @param instances
      * @throws Exception
      */
@@ -42,8 +44,19 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
 		for(int i = 0; i<instances.numAttributes();i++) {
 			attributes.add(dataset.attribute(i));
 		}
-
-		initSeed();
+        initSeed();
+        initClusters();
+        boolean isChanged = true;
+        while(isChanged) {
+            KMeansCluster[] prevClusters = new KMeansCluster[numClusters];
+            for(int i = 0; i<numClusters; i++) {
+                KMeansCluster prevCluster = new KMeansCluster(centroids.instance(i));
+                prevClusters[i] = prevCluster;
+            }
+            reCluster();
+            updateCentroid();
+            isChanged = this.isDifferent(prevClusters);
+        }
 	}
 
     /**
@@ -68,27 +81,6 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
      */
     public Instances getCentroids() {
         return centroids;
-    }
-
-    /**
-     * melakukan clustering
-     * I.S. data tidak memiliki centroid dan tidak memiliki kluster berdasarkan kemiripan
-     * F.S dataset memiliki centroid dan sudah berbentuk cluster
-     */
-    public void runClustering(){
-        initSeed();
-        initClusters();
-        boolean isChanged = true;
-        while(isChanged) {
-            KMeansCluster[] prevClusters = new KMeansCluster[numClusters];
-            for(int i = 0; i<numClusters; i++) {
-                KMeansCluster prevCluster = new KMeansCluster(centroids.instance(i));
-                prevClusters[i] = prevCluster;
-            }
-            reCluster();
-            updateCentroid();
-            isChanged = this.isDifferent(prevClusters);
-        }
     }
 
     /**
