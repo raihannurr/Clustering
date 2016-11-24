@@ -40,7 +40,7 @@ public class MyKMeans extends AbstractClusterer implements Clusterer {
      */
 	public void buildClusterer(Instances instances) throws Exception {
 		this.dataset = instances;
-
+        attributes = new ArrayList<>();
 		for(int i = 0; i<instances.numAttributes();i++) {
 			attributes.add(dataset.attribute(i));
 		}
